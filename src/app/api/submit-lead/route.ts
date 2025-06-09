@@ -11,6 +11,7 @@ interface LeadData {
   location: string
   website?: string
   marketingGoals?: string[]
+  utmParams?: Record<string, string>
 }
 
 // GoHighLevel configuration - Using API v1 for location API keys
@@ -31,16 +32,24 @@ export async function POST(request: NextRequest) {
       email: data.email,
       phone: data.phone,
       locationId: GHL_LOCATION_ID,
-      source: 'Restaurant AI Search Landing Page',
+      source: data.utmParams?.utm_source || 'Restaurant AI Search Landing Page',
       customField: {
         restaurant_name: data.restaurantName,
         restaurant_type: data.restaurantType,
         location: data.location,
         website: data.website || '',
         marketing_goals: data.marketingGoals?.join(', ') || '',
-        submission_date: new Date().toISOString()
+        submission_date: new Date().toISOString(),
+        // UTM Parameters for attribution tracking
+        utm_source: data.utmParams?.utm_source || '',
+        utm_medium: data.utmParams?.utm_medium || '',
+        utm_campaign: data.utmParams?.utm_campaign || '',
+        utm_term: data.utmParams?.utm_term || '',
+        utm_content: data.utmParams?.utm_content || '',
+        referrer: data.utmParams?.referrer || '',
+        landing_page: data.utmParams?.landing_page || ''
       },
-      tags: ['Restaurant AI Search', 'Landing Page Lead', data.restaurantType]
+      tags: ['Restaurant AI Search', 'Landing Page Lead', data.restaurantType, ...(data.utmParams?.utm_campaign ? [data.utmParams.utm_campaign] : [])]
     }
 
     // Send to GoHighLevel using v1 API

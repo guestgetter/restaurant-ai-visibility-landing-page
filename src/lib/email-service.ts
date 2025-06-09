@@ -10,6 +10,7 @@ interface LeadData {
   location: string
   website?: string
   marketingGoals?: string[]
+  utmParams?: Record<string, string>
 }
 
 // Email configuration
@@ -69,6 +70,17 @@ Marketing Goals:
 ${leadData.marketingGoals && leadData.marketingGoals.length > 0 
   ? leadData.marketingGoals.map(goal => `• ${goal}`).join('\n')
   : '• Not specified'
+}
+
+Lead Attribution & Source:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${leadData.utmParams && Object.keys(leadData.utmParams).length > 0 
+  ? Object.entries(leadData.utmParams)
+      .filter(([_, value]) => value && value !== 'direct')
+      .map(([key, value]) => `• ${key.replace('_', ' ').toUpperCase()}: ${value}`)
+      .join('\n')
+  : '• Direct traffic (no UTM parameters)'
 }
 
 Next Steps:

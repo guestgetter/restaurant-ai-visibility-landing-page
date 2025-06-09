@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -93,6 +93,7 @@ export function RestaurantForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [selectedChallenges, setSelectedChallenges] = useState<string[]>([])
+  const [utmParams, setUtmParams] = useState<Record<string, string>>({})
 
   const {
     register,
@@ -112,12 +113,36 @@ export function RestaurantForm() {
     }
   })
 
+  // Capture UTM parameters on component mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const utmData: Record<string, string> = {}
+      
+      // Capture standard UTM parameters
+      const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content']
+      utmKeys.forEach(key => {
+        const value = urlParams.get(key)
+        if (value) {
+          utmData[key] = value
+        }
+      })
+      
+      // Also capture referrer and landing page
+      utmData.referrer = document.referrer || 'direct'
+      utmData.landing_page = window.location.href
+      
+      setUtmParams(utmData)
+      console.log('UTM Parameters captured:', utmData)
+    }
+  }, [])
+
   const onSubmit = async (data: RestaurantFormData) => {
     setIsSubmitting(true)
     try {
       console.log('Submitting lead for:', data.restaurantName)
       
-      // Prepare data for GoHighLevel
+      // Prepare data for GoHighLevel including UTM parameters
       const leadData = {
         firstName: data.ownerName.split(' ')[0] || data.ownerName,
         lastName: data.ownerName.split(' ').slice(1).join(' ') || '',
@@ -127,7 +152,8 @@ export function RestaurantForm() {
         restaurantType: data.cuisineType,
         location: `${data.city}, ${data.state}`,
         website: data.website,
-        marketingGoals: data.currentChallenges
+        marketingGoals: data.currentChallenges,
+        utmParams: utmParams // Include UTM tracking data
       }
 
       // Submit to GoHighLevel
