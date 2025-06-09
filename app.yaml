@@ -1,0 +1,31 @@
+name: restaurant-ai-search
+services:
+- name: web
+  source_dir: /
+  github:
+    repo: your-username/restaurant-ai-search
+    branch: main
+  run_command: npm start
+  build_command: npm run build
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 3000
+  envs:
+  - key: NODE_ENV
+    value: production
+  - key: OPENAI_API_KEY
+    scope: RUN_TIME
+    type: SECRET
+  - key: GOOGLE_PLACES_API_KEY
+    scope: RUN_TIME
+    type: SECRET
+  - key: YELP_API_KEY
+    scope: RUN_TIME
+    type: SECRET
+  - key: RESEND_API_KEY
+    scope: RUN_TIME
+    type: SECRET
+domains:
+- domain: restaurant-ai-search.digitaloceanspaces.com
+  type: PRIMARY 
