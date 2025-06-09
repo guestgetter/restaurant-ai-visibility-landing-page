@@ -48,24 +48,10 @@ const solutions = [
 ]
 
 export function WhyItMattersSection() {
-  const [restaurantName, setRestaurantName] = useState('')
-  const [isTestingAI, setIsTestingAI] = useState(false)
   const [orderValue, setOrderValue] = useState('45')
   const [restaurantType, setRestaurantType] = useState('casual')
   const [location, setLocation] = useState('urban')
   const [calculatedRevenue, setCalculatedRevenue] = useState(8400)
-
-  const handleAITest = async () => {
-    if (!restaurantName.trim()) return
-    setIsTestingAI(true)
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    setIsTestingAI(false)
-    
-    // Show demo results with clear explanation
-    alert(`🔍 DEMO RESULTS for "${restaurantName}":\n\n❌ ChatGPT: Generic "restaurant" mention with no unique details\n❌ Perplexity: Not appearing in top local recommendations\n❌ Google AI Overviews: Missing from AI-generated summaries\n❌ Claude: No specific information found\n\n💡 This is a preview! Your actual report will:\n✅ Test real AI platforms with live data\n✅ Show exact search queries and responses\n✅ Compare you vs. competitors\n✅ Provide specific optimization steps\n\n🎯 Get your comprehensive analysis below!`)
-  }
 
   // Calculate revenue when selections change
   useEffect(() => {
@@ -211,45 +197,7 @@ export function WhyItMattersSection() {
           </div>
         </AnimatedSection>
 
-        {/* Interactive Demo Section */}
-        <AnimatedSection className="mb-32">
-          <div className="bg-gradient-to-br from-red-50 to-orange-50 border border-red-200 rounded-3xl p-8 md:p-12 max-w-5xl mx-auto">
-            <h3 className="text-2xl md:text-3xl font-bold text-center mb-8 text-neutral-900">
-              🔍 Quick Test: Does AI Know Your Restaurant?
-            </h3>
-            <p className="text-center text-neutral-600 mb-8 max-w-2xl mx-auto">
-              Enter your restaurant name below to see a demo of what AI platforms typically return (this is a preview - your full report will have real data).
-            </p>
-            <div className="bg-white border border-neutral-200 rounded-2xl p-8 mb-8 shadow-sm">
-              <div className="flex flex-col md:flex-row gap-4 items-center">
-                <input
-                  type="text"
-                  placeholder="Enter your restaurant name..."
-                  value={restaurantName}
-                  onChange={(e) => setRestaurantName(e.target.value)}
-                  className="flex-1 px-6 py-4 bg-white border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 text-lg"
-                />
-                <button 
-                  onClick={handleAITest}
-                  disabled={!restaurantName.trim() || isTestingAI}
-                  className="px-8 py-4 bg-primary-gradient text-white font-semibold rounded-xl hover:scale-105 transition-transform whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed text-lg shadow-lg"
-                >
-                  {isTestingAI ? 'Testing...' : 'Test Now'}
-                </button>
-              </div>
-            </div>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-red-100 border border-red-300 rounded-2xl p-6">
-                <h4 className="font-semibold text-red-800 mb-3 text-lg">❌ What Most Restaurants See:</h4>
-                <p className="text-red-700">"No specific results" or generic listings without your unique value props, menu highlights, or compelling descriptions</p>
-              </div>
-              <div className="bg-green-100 border border-green-300 rounded-2xl p-6">
-                <h4 className="font-semibold text-green-800 mb-3 text-lg">✅ What Optimized Restaurants Get:</h4>
-                <p className="text-green-700">Rich descriptions, menu highlights, atmosphere details, and prominent placement in AI responses across all platforms</p>
-              </div>
-            </div>
-          </div>
-        </AnimatedSection>
+
 
         {/* Call to Action */}
         <AnimatedSection className="text-center mt-16">
