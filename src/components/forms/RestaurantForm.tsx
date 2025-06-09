@@ -91,6 +91,7 @@ const hearAboutOptions = [
 export function RestaurantForm() {
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
   const [selectedChallenges, setSelectedChallenges] = useState<string[]>([])
 
   const {
@@ -99,7 +100,8 @@ export function RestaurantForm() {
     formState: { errors, isValid },
     trigger,
     watch,
-    setValue
+    setValue,
+    getValues
   } = useForm<RestaurantFormData>({
     resolver: zodResolver(restaurantFormSchema),
     mode: 'onChange',
@@ -113,43 +115,43 @@ export function RestaurantForm() {
   const onSubmit = async (data: RestaurantFormData) => {
     setIsSubmitting(true)
     try {
-      console.log('Starting restaurant analysis for:', data.restaurantName)
+      console.log('Submitting lead for:', data.restaurantName)
       
-      // Prepare data for API
-      const analysisData = {
-        restaurantName: data.restaurantName,
-        location: `${data.city}, ${data.state}`,
-        cuisine: data.cuisineType,
-        website: data.website,
+      // Prepare data for GoHighLevel
+      const leadData = {
+        firstName: data.ownerName.split(' ')[0] || data.ownerName,
+        lastName: data.ownerName.split(' ').slice(1).join(' ') || '',
         email: data.email,
         phone: data.phone,
-        ownerName: data.ownerName
+        restaurantName: data.restaurantName,
+        restaurantType: data.cuisineType,
+        location: `${data.city}, ${data.state}`,
+        website: data.website,
+        marketingGoals: data.currentChallenges
       }
 
-      // Call our analysis API
-      const response = await fetch('/api/analyze-restaurant', {
+      // Submit to GoHighLevel
+      const response = await fetch('/api/submit-lead', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(analysisData)
+        body: JSON.stringify(leadData)
       })
 
       if (!response.ok) {
-        throw new Error('Analysis request failed')
+        throw new Error('Lead submission failed')
       }
 
       const result = await response.json()
+      console.log('Lead submitted successfully:', result)
       
-      // Show success message with results
-      alert(`🎉 Analysis Complete!\n\nOverall AI Visibility Score: ${result.score}/100\n\nTop Recommendations:\n${result.recommendations.slice(0, 3).map((rec: string, i: number) => `${i + 1}. ${rec}`).join('\n')}\n\n📧 ${result.message}`)
-      
-      // Optionally reset form or redirect
-      // setCurrentStep(1)
+      // Show thank you state
+      setIsSubmitted(true)
       
     } catch (error) {
-      console.error('Error submitting form:', error)
-      alert('❌ Analysis failed. Please try again or contact support.')
+      console.error('Error submitting lead:', error)
+      alert('❌ Submission failed. Please try again or contact support.')
     } finally {
       setIsSubmitting(false)
     }
@@ -180,6 +182,87 @@ export function RestaurantForm() {
   }
 
   const progress = (currentStep / steps.length) * 100
+
+  // Show thank you message if submitted
+  if (isSubmitted) {
+    return (
+      <section id="form" className="section-padding bg-neutral-50">
+        <div className="container-custom">
+          <div className="max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="bg-white rounded-2xl shadow-xl p-12 text-center"
+            >
+              <div className="mb-8">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Check className="w-10 h-10 text-green-600" />
+                </div>
+                <h2 className="text-4xl font-bold text-neutral-900 mb-4">
+                  🎉 Thank You!
+                </h2>
+                <p className="text-xl text-neutral-600 mb-8">
+                  Your restaurant AI search analysis request has been submitted successfully.
+                </p>
+              </div>
+
+              <div className="bg-primary-50 rounded-xl p-8 mb-8">
+                <h3 className="text-2xl font-bold text-primary-900 mb-4">
+                  What happens next?
+                </h3>
+                <div className="space-y-4 text-left">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white font-bold text-sm">1</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-neutral-900">Due Diligence Review</h4>
+                      <p className="text-neutral-600">Our team will conduct a thorough analysis of your restaurant's AI search presence across ChatGPT, Google AI, and Perplexity.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white font-bold text-sm">2</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-neutral-900">Detailed Report Generation</h4>
+                      <p className="text-neutral-600">You'll receive a comprehensive PDF report with your visibility score, competitor analysis, and actionable recommendations.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white font-bold text-sm">3</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-neutral-900">Report Delivery</h4>
+                      <p className="text-neutral-600">Your personalized AI search report will be delivered to your email within <strong>24-48 hours</strong>.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
+                <div className="flex items-center justify-center mb-3">
+                  <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center mr-3">
+                    <span className="text-yellow-800 font-bold text-sm">!</span>
+                  </div>
+                  <h4 className="font-semibold text-yellow-800">Free for First 100 Restaurants</h4>
+                </div>
+                <p className="text-yellow-700 text-sm">
+                  You're part of our launch program! This comprehensive analysis is completely free with no obligation.
+                </p>
+              </div>
+
+              <p className="text-neutral-500 text-sm">
+                Questions? Reply to our confirmation email or contact us directly.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section id="form" className="section-padding bg-neutral-50">
