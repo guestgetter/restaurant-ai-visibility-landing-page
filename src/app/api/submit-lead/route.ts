@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { sendLeadNotification } from '@/lib/email-service'
 
 interface LeadData {
   firstName: string
@@ -69,6 +70,16 @@ export async function POST(request: NextRequest) {
     } catch (parseError) {
       console.error('Error parsing GHL response:', parseError)
       ghlResult = { success: true }
+    }
+
+    // Send email notification
+    console.log('Sending email notification...')
+    try {
+      await sendLeadNotification(data)
+      console.log('Email notification sent successfully')
+    } catch (emailError) {
+      console.error('Error sending email notification:', emailError)
+      // Don't fail the whole request if email fails
     }
 
     // Return success response regardless of GHL status (for user experience)
